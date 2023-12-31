@@ -8,6 +8,14 @@ class UserCreate(BaseModel):
     password: str
     name: str
 
+class UserRegisterOut(BaseModel):
+    id: int
+    name: str
+    email: EmailStr
+    online: bool
+
+
+
 
 class UserOut(BaseModel):
     id: int

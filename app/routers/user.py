@@ -15,7 +15,7 @@ router = APIRouter(
 connected_clients: Dict[str, WebSocket] = {}
 
 
-@router.post("/register", status_code=status.HTTP_201_CREATED, response_model=schemas.UserOut)
+@router.post("/register", status_code=status.HTTP_201_CREATED, response_model=schemas.UserRegisterOut)
 def create_user(user: schemas.UserCreate, db: Session = Depends(database.get_db)):
     exists = db.query(models.User).filter(models.User.email == user.email).first()
     if exists is not None:
