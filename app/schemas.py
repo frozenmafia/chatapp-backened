@@ -14,6 +14,7 @@ class UserOut(BaseModel):
     name: str
     email: EmailStr
     online: bool
+    unread:int
 
 
 class TokenData(BaseModel):

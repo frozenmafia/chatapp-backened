@@ -3,8 +3,8 @@ from sqlalchemy.orm import sessionmaker
 from sqlalchemy.ext.declarative import declarative_base
 
 SQLALCHEMY_DATABASE_URL_DEV = 'postgresql://postgres:123qwe123qwe@localhost/chatapp4'
-SQLALCHEMY_DATABASE_URL = 'postgresql://shivajay295:9DjAZuiMdb7V@ep-cold-mountain-40940784.ap-southeast-1.aws.neon.tech/chatapp4?sslmode=require'
-
+SQLALCHEMY_DATABASE_URL_PROD = 'postgresql://shivajay295:9DjAZuiMdb7V@ep-cold-mountain-40940784.ap-southeast-1.aws.neon.tech/chatapp4?sslmode=require'
+SQLALCHEMY_DATABASE_URL = "sqlite:///./test.db"
 engine = create_engine(
     SQLALCHEMY_DATABASE_URL
 )

@@ -11,7 +11,7 @@ class Message(Base):
     sender_id = Column(Integer, ForeignKey('users.id'), nullable=False)
     receiver_id = Column(Integer, ForeignKey('users.id'), nullable=False)
     type = Column(String, nullable=False)
-    created_at = Column(TIMESTAMP(timezone=True), nullable=False, server_default=text('now()'))
+    created_at = Column(TIMESTAMP(timezone=True), nullable=False, server_default=func.now())
     content = Column(String, nullable=False)
 
     # sender = relationship('User', foreign_keys=[sender_id], back_populates='messages_sent')
@@ -27,7 +27,7 @@ class User(Base):
     email = Column(String, nullable=False, unique=True)
     password = Column(String, nullable=False)
     name = Column(String, nullable=False)
-    created_at = Column(TIMESTAMP(timezone=True), nullable=False, server_default=text('now()'))
+    created_at = Column(TIMESTAMP(timezone=True), nullable=False, server_default=func.now())
     online = Column(Boolean, nullable=False, default=False)
     #
     # messages_sent = relationship('Message', foreign_keys=[Message.sender_id], back_populates='sender')

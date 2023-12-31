@@ -27,5 +27,5 @@ def get_users(db: Session = Depends(database.get_db), current_user: models.User 
             "online": user.online,
             "unread": unread_count.count if unread_count else 0,
         })
-
+    print(users_response)
     return users_response
