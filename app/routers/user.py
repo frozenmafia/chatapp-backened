@@ -3,7 +3,6 @@ from starlette.websockets import WebSocketState
 
 from .. import database, schemas, models, utils, oauth2
 from typing import List, Dict
-# from ..webconn.webconn import connection_manager
 
 from sqlalchemy.orm import Session
 
@@ -30,23 +29,27 @@ def create_user(user: schemas.UserCreate, db: Session = Depends(database.get_db)
     return new_user
 
 
-@router.get("/logout/{user_id}", status_code=status.HTTP_200_OK)
-async def logout_user(user_id: int, db: Session = Depends(database.get_db),current_user: models.User = Depends(oauth2.get_current_user)):
+@router.get("/logout", status_code=status.HTTP_200_OK)
+async def logout_user(db: Session = Depends(database.get_db),current_user: models.User = Depends(oauth2.get_current_user)):
 
-    if user_id is not current_user.id:
-        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=f'Invalid logout')
-    exists : models.User | None = db.query(models.User).filter(models.User.id == user_id).first()
+    user_id = int(current_user.id)
 
-    if exists is None:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f'User not found')
-    db.query(models.User).filter(models.User.id == user_id).update({'online': False})
-    db.commit()
+
+    exists  = db.query(models.User).filter(models.User.id == user_id).first()
+
+    if exists:
+        db.query(models.User).filter(models.User.id == user_id).update({'online': False})
+        db.commit()
+
+    oauth2.logout()
+
     await disconnect_user(str(user_id))
 
 
 @router.post("/{user_id}", response_model=schemas.UserOut)
-def get_user(user_id: int, db: Session = Depends(database.get_db),
-             current_user: int = Depends(oauth2.get_current_user)):
+async def get_user(user_id: int, db: Session = Depends(database.get_db),
+             current_user: models.User = Depends(oauth2.get_current_user)):
+
     user = db.query(models.User).filter(models.User.id == user_id).first()
     if user is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f'User with id : {user_id} was not found')
@@ -125,9 +128,12 @@ async def disconnect_user(user_id: str):
     try:
         # Close the WebSocket connection
         await connected_clients[user_id].close()
+
         # Remove the user from the connected_clients dictionary
         del connected_clients[user_id]
+
         await broadcast("#Connected#")
+
     except KeyError:
         # Handle the case where the user is not in the dictionary
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"User {user_id} not found")
+        print("some users were already down")
