@@ -31,12 +31,14 @@ def create_user(user: schemas.UserCreate, db: Session = Depends(database.get_db)
 
 
 @router.get("/logout/{user_id}", status_code=status.HTTP_200_OK)
-async def logout_user(user_id: int, db: Session = Depends(database.get_db)):
-    exists = db.query(models.User).filter(models.User.id == user_id).first()
+async def logout_user(user_id: int, db: Session = Depends(database.get_db),current_user: models.User = Depends(oauth2.get_current_user)):
+
+    if user_id is not current_user.id:
+        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=f'Invalid logout')
+    exists : models.User | None = db.query(models.User).filter(models.User.id == user_id).first()
 
     if exists is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f'User not found')
-
     db.query(models.User).filter(models.User.id == user_id).update({'online': False})
     db.commit()
     await disconnect_user(str(user_id))

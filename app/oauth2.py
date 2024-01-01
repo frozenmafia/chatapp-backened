@@ -35,11 +35,12 @@ def verify_access_token(token: str, credentials_exception: HTTPException) -> sch
     return token_data
 
 
-def get_current_user(token: str = Depends(oauth2_scheme), db: Session = Depends(database.get_db)) -> Type[
+async def get_current_user(token: str = Depends(oauth2_scheme), db: Session = Depends(database.get_db)) -> Type[
                                                                                                          models.User] | None:
     credentials_exception: HTTPException = HTTPException(status_code=status.HTTP_401_UNAUTHORIZED,
                                                          detail=f'Could not validate credentials',
                                                          headers={'WWW-Authenticate': 'Bearer'})
     token: schemas.TokenData = verify_access_token(token=token, credentials_exception=credentials_exception)
     user: models.User or None = db.query(models.User).filter(models.User.id == token.user_id).first()
+
     return user
